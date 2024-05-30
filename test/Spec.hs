@@ -20,5 +20,10 @@ testing = testGroup "All Tests"
     show (Binary (Local "x", Number, Sub, "x0", "1")) @?= "%x = sub i32 x0, 1\n",
   testCase "function begin translation" $
     let paramlist = Full [(Number, Global "x"), (Number, Local "y"), (Number, Local "z")] in
-    show (Primitive (Number, Global "sum", paramlist)) @?= "define i32 @sum(i32 @x, i32 %y, i32 %z) {"
+    show (Begin (Number, Global "sum", paramlist)) @?= "define i32 @sum(i32 @x, i32 %y, i32 %z) {\n",
+  testCase "function begin and end translation" $
+    let paramlist = Full [(Number, Global "x"), (Number, Local "y"), (Number, Local "z")] in
+    (show (Begin (Number, Global "sum", paramlist)) ++ show EndFunction)
+      @?= "define i32 @sum(i32 @x, i32 %y, i32 %z) {\n}\n"
+
   ]
