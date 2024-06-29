@@ -1,16 +1,18 @@
 module Lib ( module Lib ) where
+import Types (LLVMTypes, Name)
 
-import Functions
+type ValueLexeme = String
 
-data Operation = Add | Sub
+data Scope = L | G deriving Eq
 
--- simple assignment type for llvm
-data Assignment = Bind (Name, Type, String) | Binary (Name, Type, Operation, String, String)
+instance Show Scope where
+  show L = "%"
+  show G = "@"
 
-instance Show Operation where
-  show Add      = "add "
-  show Sub      = "sub "
+-- | A binding here is a defined as any referencable name tied to some defined data.
+-- here a method counts as data as does a contstant and anything in between. If the data
+-- has a name by which to reference it, it is then bound to that name
+data Binding = ConstVar (Scope, Name, LLVMTypes, ValueLexeme) deriving Eq
 
-instance Show Assignment where
-  show (Bind (n, t, v)) = ((show n) ++ " = " ++ (show t) ++ v ++ "\n")
-  show (Binary (n, t, o, s1, s2)) = ((show n) ++ " = " ++ show o ++ (show t) ++ s1 ++ ", " ++ s2 ++ "\n")
+instance Show Binding where
+ show (ConstVar (l, n, t, v)) = show l ++ show n ++ " = " ++ show t ++ " " ++ v

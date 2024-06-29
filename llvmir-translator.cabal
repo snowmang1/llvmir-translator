@@ -25,9 +25,8 @@ source-repository head
 
 library
   exposed-modules:
-      ControlFlow
-      Functions
       Lib
+      Types
   other-modules:
       Paths_llvmir_translator
   autogen-modules:
