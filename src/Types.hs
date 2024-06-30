@@ -8,7 +8,6 @@ module Types ( module Types ) where
 -- Aggregations ==> Arrays & Vectors
 --
 -- TODO:
--- * Functions for first-class function languages
 -- * possible type for inline assembly
 
 -- | the name type is for use inside the library only and will not be available outside of it as the

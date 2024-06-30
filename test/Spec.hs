@@ -18,7 +18,7 @@ bindTesting :: TestTree
 bindTesting = testGroup "Binding Testing"
   [
     testCase "simple constant Binding" $
-      show (ConstVar (L, Lexeme 0 "x", Integer, "0")) @?= "%x0 = i32 0"
+      show (Variable (L, Lexeme 0 "x", Integer, "0")) @?= "%x0 = i32 0"
   ]
 
 typeTesting :: TestTree
