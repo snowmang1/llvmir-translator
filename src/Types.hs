@@ -8,7 +8,11 @@ module Types ( module Types ) where
 -- Aggregations ==> Arrays & Vectors
 --
 -- TODO:
--- * possible type for inline assembly
+-- * possible type for block assembly
+-- type for block LLVM IR
+
+-- | this Token is the combination of a lexeme and a type in proper Token form
+type Token        = (LLVMTypes, String)
 
 -- | the name type is for use inside the library only and will not be available outside of it as the
 -- name type is used to keep track of a variables reference-able lexeme as well as its SSA compliant mangled binding.
@@ -22,13 +26,13 @@ mangle (Lexeme i s) = s ++ show i
 
 -- | defines the types that can be directly translated into LLVM IR type code.
 -- we include the following types: Numeric (int, float, long, double), Boolean (i1), Character (i8), array & vector.
-data LLVMTypes = Integer | Float | Long | Double | Boolean | Character | Array LLVMTypes Integer | Vector LLVMTypes Integer deriving Eq
+data LLVMTypes = Integer | LLVMFloat | Long | LLVMDouble | Boolean | Character | Array LLVMTypes Integer | Vector LLVMTypes Integer deriving Eq
 
 instance Show LLVMTypes where
   show Integer = "i32"
-  show Float = "float"
+  show LLVMFloat = "float"
   show Long = "i64"
-  show Double = "double"
+  show LLVMDouble = "double"
   show Character = "i8"
   show Boolean = "i1"
   show (Array t x) = "[" ++ show x ++ " x " ++ show t ++ "]"

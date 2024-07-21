@@ -16,7 +16,7 @@ license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
-    README.md
+    README.adoc
     CHANGELOG.md
 
 source-repository head
@@ -25,6 +25,8 @@ source-repository head
 
 library
   exposed-modules:
+      Bindings
+      Fxn
       Lib
       Types
   other-modules:

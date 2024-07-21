@@ -7,7 +7,7 @@ maintainer:          "evanmdrake@icloud.com"
 copyright:           "Evan Drake"
 
 extra-source-files:
-- README.md
+- README.adoc
 - CHANGELOG.md
 
 # Metadata used when publishing your package
