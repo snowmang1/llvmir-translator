@@ -3,12 +3,16 @@ module Fxn ( module Fxn ) where
 import Types
 import Bindings
 
--- | an LLVM IR function definition can be naively expressed as a collection of labeled blocks of simple IR code
--- such that any piece of the function can be expressed as
-data LLVMFunctionDef = EmptyFunction | InitialBlock LLVMTypes String [Token] [FxnAttr] | Block LabeledBlock LLVMFunctionDef
+-- | to define a new function one must first supply a type and the parameters if any exist
+-- then we need knowledge of special attributes about the function
+-- only then can we define the body
+data DefineLLVMFunction = DefineFunction LLVMTypes String [Token] [FxnAttr] LLVMFunctionDef
+
+-- | Helps us define the body of an LLVM function in a structured way utilizing labeled blocks of code
+data LLVMFunctionDef = EmptyFunction | Block LabeledBlock LLVMFunctionDef | FunctionReturn Token LLVMFunctionDef
 
 -- | a Block of code is defined as a block of simple bindings for now
--- - FIX: not a comprehensive definition
+-- - FIX: not a comprehensive definition : control flow did not exist at the time of writing
 newtype LabeledBlock = Labled (String,[Binding])
 
 -- | to be updated later this is a comprehensive list of function attributes
@@ -22,19 +26,23 @@ instance Show LabeledBlock where
     where
     unwrap :: Show a => [a] -> String
     unwrap []     = ""
-    unwrap (h:[]) = show h ++ "\n"
-    unwrap (h:t)  = show h ++ "\n" ++ unwrap t
+    unwrap a      = foldr (\x acc -> show x ++ "\n" ++ acc) "" a
 
-instance Show LLVMFunctionDef where
-  show (InitialBlock typ name paramList attrList) = "define " ++ show typ ++ " @" ++ name ++ "(" ++ tokenUnwrap paramList ++ ") " ++ unwrap attrList ++ "{\n"
+instance Show DefineLLVMFunction where
+  show (DefineFunction typ name paramList attrList body) = "define " ++ show typ ++ " @" ++ name ++ "(" ++ tokenUnwrap paramList ++ ") " ++ unwrap attrList
+                                                                 ++ " {\n" ++ show body
     where
     tokenUnwrap :: [Token] -> String
     tokenUnwrap []                            = ""
-    tokenUnwrap ((token_type, token_name):[]) = show token_type ++ " " ++ token_name
-    tokenUnwrap ((token_type, token_name):t)  = show token_type ++ " " ++ token_name ++ ", " ++ tokenUnwrap t
+    tokenUnwrap l = let size = length l
+                    in
+                    foldr (\(tp, s, tn) a -> if length a == size-2 then show tp ++ " " ++ show s ++ show tn ++ a else
+                                          show tp ++ " " ++ show s ++ show tn ++ ", " ++ a) "" l
     unwrap :: Show a => [a] -> String
-    unwrap []      = ""
-    unwrap (h:[])  = show h
-    unwrap (h:t)   = show h ++ ", " ++ unwrap t
+    unwrap [] = "nounwind"
+    unwrap a  = foldr (\x acc -> show x ++ ", " ++ acc) "" a
+
+instance Show LLVMFunctionDef where
   show EmptyFunction = "}\n"
-  show (Block lb fd) = show lb ++ "\n" ++ show fd
+  show (Block lb fd) = show lb ++ show fd
+  show (FunctionReturn (t, s, n) fd) = "ret " ++ show t ++ " " ++ show s ++ show n ++ "\n" ++ show fd

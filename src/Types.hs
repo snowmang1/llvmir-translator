@@ -12,17 +12,24 @@ module Types ( module Types ) where
 -- type for block LLVM IR
 
 -- | this Token is the combination of a lexeme and a type in proper Token form
-type Token        = (LLVMTypes, String)
+type Token        = (LLVMTypes, Scope, Name)
+
+data Scope = L | G deriving Eq
+
+instance Show Scope where
+  show L = "%"
+  show G = "@"
 
 -- | the name type is for use inside the library only and will not be available outside of it as the
 -- name type is used to keep track of a variables reference-able lexeme as well as its SSA compliant mangled binding.
 -- Keeps track of what number reference this lexeme is.
 -- This type will have an accompanying accompanying function mangle to assist with SSA compliance (only used on show)
-data Name = Lexeme Integer String
+newtype Name = Name (Integer,String)
 
--- | naive SSA compliance
-mangle :: Name -> String
-mangle (Lexeme i s) = s ++ show i
+-- FIX this should lookup the name lexeme to get the number of previous (in scope) occurances 
+-- | a utility to easily build tokens inside the library
+buildToken :: String -> Scope -> LLVMTypes -> Token
+buildToken n s t = (t, s, Name (0,n))
 
 -- | defines the types that can be directly translated into LLVM IR type code.
 -- we include the following types: Numeric (int, float, long, double), Boolean (i1), Character (i8), array & vector.
@@ -36,9 +43,15 @@ instance Show LLVMTypes where
   show Character = "i8"
   show Boolean = "i1"
   show (Array t x) = "[" ++ show x ++ " x " ++ show t ++ "]"
+  show (Vector _ _) = undefined
 
 instance Show Name where
   show l = mangle l
+    where
+    -- | FIX: naive SSA compliance
+    mangle :: Name -> String
+    mangle (Name (i,s)) = s ++ show i
+
 
 instance Eq Name where
-  (==) (Lexeme _ s1) (Lexeme _ s2) = (s1 == s2)
+  (==) (Name (_,s1)) (Name (_,s2)) = (s1 == s2)
